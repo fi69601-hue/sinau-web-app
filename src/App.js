@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import { db } from "./firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function App() {
   const initialData = [
@@ -93,16 +95,32 @@ export default function App() {
     ]
   ];
 
-  const [data, setData] = useState(() => {
-    const saved = localStorage.getItem("tugasMatkul");
-    return saved ? JSON.parse(saved) : initialData;
-  });
+  useEffect(() => {
+  const loadData = async () => {
+    const docRef = doc(db, "tugas", "global");
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      setData(docSnap.data().data);
+    }
+  };
+
+  loadData();
+}, []);
 
   const [selectedCell, setSelectedCell] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem("tugasMatkul", JSON.stringify(data));
-  }, [data]);
+  const saveData = async () => {
+    await setDoc(doc(db, "tugas", "global"), {
+      data: data
+    });
+  };
+
+  if (data.length > 0) {
+    saveData();
+  }
+}, [data]);
 
   const updateCell = (field, value) => {
     if (!selectedCell) return;
