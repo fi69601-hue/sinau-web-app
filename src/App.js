@@ -4,6 +4,7 @@ import { db } from "./firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function App() {
+  // === INITIAL DATA ===
   const initialData = [
     [
       { text: "Bahasa Indonesia", color: "#eaff00" },
@@ -25,7 +26,7 @@ export default function App() {
       { text: "", color: "#ffffff" },
       { text: "", color: "#ffffff" },
       { text: "", color: "#ffffff" },
-      { text: "", color: "#12dce8" }
+      { text: "-", color: "#12dce8" }
     ],
     [
       { text: "PKTI", color: "#eaff00" },
@@ -95,33 +96,36 @@ export default function App() {
     ]
   ];
 
-  useEffect(() => {
-  const loadData = async () => {
-    const docRef = doc(db, "tugas", "global");
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      setData(docSnap.data().data);
-    }
-  };
-
-  loadData();
-}, []);
-
+  // === STATE ===
+  const [data, setData] = useState(initialData);
   const [selectedCell, setSelectedCell] = useState(null);
 
+  // === LOAD DATA DARI FIRESTORE ===
   useEffect(() => {
-  const saveData = async () => {
-    await setDoc(doc(db, "tugas", "global"), {
-      data: data
-    });
-  };
+    const loadData = async () => {
+      const docRef = doc(db, "tugas", "global");
+      const docSnap = await getDoc(docRef);
 
-  if (data.length > 0) {
-    saveData();
-  }
-}, [data]);
+      if (docSnap.exists()) {
+        setData(docSnap.data().data);
+      }
+    };
 
+    loadData();
+  }, []);
+
+  // === SIMPAN DATA KE FIRESTORE ===
+  useEffect(() => {
+    const saveData = async () => {
+      await setDoc(doc(db, "tugas", "global"), {
+        data: data
+      });
+    };
+
+    if (data.length > 0) saveData();
+  }, [data]);
+
+  // === UPDATE CELL ===
   const updateCell = (field, value) => {
     if (!selectedCell) return;
 
@@ -153,6 +157,7 @@ export default function App() {
       ? data[selectedCell.row][selectedCell.col]
       : null;
 
+  // === RENDER ===
   return (
     <div className="container">
       <h1>TUGAS MATA KULIAH SEM 4</h1>
@@ -213,6 +218,6 @@ export default function App() {
       </table>
 
       <p className="hint">Klik 1x cell untuk edit teks dan warna.</p>
-   </div>
+    </div>
   );
 }
