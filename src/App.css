@@ -96,7 +96,7 @@ td:hover {
 
 th:nth-child(1),
 td:nth-child(1) {
-  width: 135px; /* Mata Kuliah */
+  width: 130px; /* Mata Kuliah */
 }
 
 th:nth-child(9),
